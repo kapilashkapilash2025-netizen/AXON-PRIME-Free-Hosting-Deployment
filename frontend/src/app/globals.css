@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #132654 0%, #050b1f 55%);
+  color: #e2e8f0;
+}
+
+@keyframes riskPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(244, 63, 94, 0.15); }
+  50% { box-shadow: 0 0 24px rgba(244, 63, 94, 0.35); }
+}
+
+@keyframes riskWarn {
+  0%, 100% { border-color: rgba(245, 158, 11, 0.5); }
+  50% { border-color: rgba(251, 191, 36, 0.95); }
+}
+
+@keyframes subtleVibrate {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-1px); }
+  40% { transform: translateX(1px); }
+  60% { transform: translateX(-1px); }
+  80% { transform: translateX(1px); }
+}
+
+@keyframes notifyIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-riskPulse {
+  animation: riskPulse 1.8s ease-in-out infinite;
+}
+
+.animate-riskWarn {
+  animation: riskWarn 1.6s ease-in-out infinite;
+}
+
+.animate-vibrateSubtle {
+  animation: subtleVibrate 0.24s ease-in-out 0s 3;
+}
+
+.animate-notifyIn {
+  animation: notifyIn 220ms ease-out;
+}
+
+.panel {
+  @apply rounded-xl border border-slate-800/80 bg-navy-900/80 shadow-panel backdrop-blur transition-all duration-200;
+}
+
+.input {
+  @apply w-full rounded-md border border-slate-700 bg-navy-950 px-3 py-2 text-sm text-slate-100 focus:border-skyaccent-500 focus:outline-none;
+}
+
+.btn-primary {
+  @apply rounded-md bg-skyaccent-500 px-4 py-2 font-medium text-slate-950 transition-all duration-200 hover:-translate-y-0.5 hover:bg-skyaccent-400 disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.btn-muted {
+  @apply rounded-md border border-slate-700 px-4 py-2 font-medium text-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:border-skyaccent-500 hover:text-skyaccent-400;
+}
+
+.skeleton {
+  @apply animate-pulse rounded bg-slate-800/80;
+}

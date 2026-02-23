@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  PRO
+  ELITE
+}
+
+enum UserRole {
+  FREE
+  PRO
+  ELITE
+  FOUNDER
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+enum TradeResult {
+  WIN
+  LOSS
+  BE
+}
+
+model User {
+  id                String                  @id @default(cuid())
+  email             String                  @unique
+  passwordHash      String
+  fullName          String
+  emailVerified     Boolean                 @default(false)
+  role              UserRole                @default(FREE)
+  accountBalance    Decimal                 @default(0)
+  currentEquity     Decimal                 @default(0)
+  equityPeak        Decimal                 @default(0)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  subscription      Subscription?
+  trades            Trade[]
+  riskSetting       RiskSetting?
+  dailyLockEvents   DailyLockEvent[]
+  behavioralLogs    BehavioralImpactLog[]
+  equitySnapshots   EquitySnapshot[]
+  emailVerifyTokens EmailVerificationToken[]
+}
+
+model EmailVerificationToken {
+  id         String   @id @default(cuid())
+  userId     String
+  token      String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  verifiedAt DateTime?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  plan                 Plan               @default(FREE)
+  status               SubscriptionStatus @default(INACTIVE)
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RiskSetting {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  maxDailyLossPct  Decimal  @default(2)
+  maxRiskPerTrade  Decimal  @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyLockEvent {
+  id             String   @id @default(cuid())
+  userId         String
+  tradeDate      DateTime
+  cumulativePnl  Decimal
+  maxLossAllowed Decimal
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, tradeDate])
+  @@unique([userId, tradeDate])
+}
+
+model EquitySnapshot {
+  id            String   @id @default(cuid())
+  userId        String
+  equity        Decimal
+  drawdownPct   Decimal
+  status        String
+  snapshotAt    DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, snapshotAt])
+}
+
+model BehavioralImpactLog {
+  id                   String   @id @default(cuid())
+  userId                String
+  logDate               DateTime
+  overtradingStatus     String
+  intensityLevel        String
+  behavioralScoreImpact Int
+  flags                 Json
+  suggestion            String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, logDate])
+  @@index([userId, logDate])
+}
+
+model Trade {
+  id            String      @id @default(cuid())
+  userId        String
+  symbol        String
+  side          String
+  entryPrice    Decimal
+  stopLoss      Decimal
+  exitPrice     Decimal?
+  quantity      Decimal
+  riskAmount    Decimal
+  rewardAmount  Decimal?
+  pnl           Decimal
+  rMultiple     Decimal
+  openedAt      DateTime
+  closedAt      DateTime?
+  notes         String?
+  result        TradeResult
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, closedAt])
+  @@index([userId, symbol, closedAt])
+  @@index([userId, openedAt])
+}
