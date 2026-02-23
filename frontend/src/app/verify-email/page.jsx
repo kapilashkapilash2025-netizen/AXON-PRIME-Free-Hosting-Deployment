@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { apiFetch } from '../../lib/api';
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const [status, setStatus] = useState('Verifying...');
   const params = useSearchParams();
 
@@ -28,5 +28,22 @@ export default function VerifyPage() {
         <a className="mt-5 inline-block text-skyaccent-400" href="/login">Go to Login</a>
       </div>
     </main>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center px-4">
+          <div className="panel max-w-md p-6 text-center">
+            <h1 className="text-xl font-semibold">Email Verification</h1>
+            <p className="mt-3 text-slate-300">Loading verification...</p>
+          </div>
+        </main>
+      }
+    >
+      <VerifyPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AuthGuard from '../../../components/AuthGuard';
 import MetricCard from '../../../components/MetricCard';
@@ -17,7 +17,7 @@ import PredictiveRiskIntelligencePanel from '../../../components/PredictiveRiskI
 import { apiFetch } from '../../../lib/api';
 import { clearSession, getUser } from '../../../lib/auth';
 
-export default function DashboardPage() {
+function DashboardPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState(null);
@@ -300,5 +300,13 @@ export default function DashboardPage() {
       </main>
       <NotificationStack items={notifications} onDismiss={dismissNotification} />
     </AuthGuard>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen px-4 py-6 md:px-8"><div className="panel p-5 text-slate-400">Loading dashboard...</div></main>}>
+      <DashboardPageContent />
+    </Suspense>
   );
 }
