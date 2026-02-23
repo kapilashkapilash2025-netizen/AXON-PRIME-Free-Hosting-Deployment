@@ -10,19 +10,23 @@ import { requestLogger } from './middlewares/requestLogger.js';
 
 const app = express();
 
-app.use(
-  cors({
-    origin(origin, cb) {
-      if (!origin) return cb(null, true);
-      if (env.corsOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error('CORS policy blocked this origin'));
-    },
-    credentials: true
-  })
-);
+const corsOptions = {
+  origin(origin, cb) {
+    if (!origin) return cb(null, true);
+    if (env.corsOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error('CORS policy blocked this origin'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Stripe-Signature'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(requestLogger);
+app.options('*', cors(corsOptions));
 
 app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());

@@ -5,8 +5,9 @@ import { prisma } from './config/db.js';
 async function start() {
   try {
     await prisma.$connect();
-    app.listen(env.port, () => {
-      console.log(`AXON PRIME backend listening on ${env.port}`);
+    const PORT = Number(process.env.PORT || env.port || 5000);
+    app.listen(PORT, () => {
+      console.log(`AXON PRIME backend listening on ${PORT}`);
     });
   } catch (error) {
     console.error('Failed to start server', error);
